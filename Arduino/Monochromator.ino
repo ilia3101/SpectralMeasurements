@@ -53,6 +53,7 @@ int MonochromatorSetWavelength(uint32_t Wavelength)
     if (steps < 0)
     {
         stepper.step(-35);
+        delay(MIN_REST_TIME);
         stepper.step(+35);
     }
     
