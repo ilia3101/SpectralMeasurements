@@ -26,7 +26,7 @@ static uint32_t send()
     return response.value;
 }
 
-int SetMonochromatorWavelength(int Wavelength)
+uint32_t SetMonochromatorWavelength(int Wavelength)
 {
     msg.type = Arduino_SET_WAVELENGHTH;
     msg.value_a = Wavelength;
@@ -34,7 +34,7 @@ int SetMonochromatorWavelength(int Wavelength)
     return send();
 }
 
-int MonochromatorCalibrate(int CurrentWavelength, int MaxWavelength, int MinWavelength, int StepsPerNm)
+uint32_t MonochromatorCalibrate(int CurrentWavelength, int MaxWavelength, int MinWavelength, int StepsPerNm)
 {
     msg.type = Arduino_INITIALISE_MONOCHROMATOR;
     msg.value_a = CurrentWavelength;
@@ -46,7 +46,7 @@ int MonochromatorCalibrate(int CurrentWavelength, int MaxWavelength, int MinWave
     return send();
 }
 
-int SetIngtegrationTime(uint32_t IntegrationTime)
+uint32_t SetIngtegrationTime(uint32_t IntegrationTime)
 {
     msg.type = Arduino_SET_INTEGRATION_TIME;
     msg.value_a = IntegrationTime;

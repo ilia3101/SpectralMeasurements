@@ -1,7 +1,7 @@
 #ifndef _Arduino_h_
 #define _Arduino_h_
 
-#include "Arduino/Message.h"
+#include "../Arduino/Message.h"
 
 /* Arduino communication, 100% synchronous only !!! */
 
