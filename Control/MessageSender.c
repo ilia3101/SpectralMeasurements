@@ -7,11 +7,12 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/time.h>
+#include <time.h>
 
 #include "MessageSender.h"
 
 /* Return value is descriptor. Negative return value means error */
-int OpenArduino(char * PortName)
+int _OpenArduino(char * PortName)
 {
     int fd;
 
@@ -35,19 +36,53 @@ int OpenArduino(char * PortName)
     toptions.c_cflag &= ~CSTOPB;
     toptions.c_cflag &= ~CSIZE;
     toptions.c_cflag |= CS8;
-    /* Canonical mode */
-    // toptions.c_lflag |= ICANON;
+    /* No Canonical mode */
+    toptions.c_lflag &= ~ICANON;
     /* wait for 12 characters to come in before read returns */
     /* WARNING! THIS CAUSES THE read() TO BLOCK UNTIL ALL */
     /* CHARACTERS HAVE COME IN! */
     toptions.c_cc[VMIN] = sizeof(ArduinoResponse_t);
+    toptions.c_cc[VTIME] = 10; /* Timeout of 1 second */
     /* commit the serial port settings */
     tcsetattr(fd, TCSANOW, &toptions);
 
     /* Wait for the Arduino to reset */
     sleep(2);
 
-    return fd;
+    int success = 0;
+    ArduinoMsg_t test = {
+        .type = Arduino_TEST,
+        .value_a = (rand()%100) + 1,
+        .value_b = (rand()%100) + 1
+    };
+    ArduinoResponse_t response;
+    ArduinoSendMsg(fd, &test);
+    ArduinoRecieveResponse(fd, &response);
+
+    /* Disable the timeout now that testing is done */
+    toptions.c_cc[VTIME] = 0;
+    tcsetattr(fd, TCSANOW, &toptions);
+
+    if (response.value = test.value_a * test.value_b)
+        return fd;
+    else
+        return -1;
+}
+
+int OpenArduino()
+{
+    srand(time(NULL));
+    for (int i = 0; i < 100; ++i)
+    {
+        char port_name[100];
+        sprintf(port_name, "/dev/ttyUSB%i", i);
+
+        int fd = _OpenArduino(port_name);
+        if (fd > 0) return fd;
+    }
+
+    puts("Did not succesfully find connected Arduino, exiting");
+    exit(1);
 }
 
 void CloseArduino(int Descriptor)

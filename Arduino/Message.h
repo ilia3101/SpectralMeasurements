@@ -21,6 +21,8 @@
 #define Arduino_SET_INTEGRATION_TIME 3
 /* Takes reading, actuates camera shutter and sends back diode value */
 #define Arduino_TAKE_READING 4
+/* Test message, returns a multiplied by b */
+#define Arduino_TEST 5
 
 typedef struct {
     // Which option

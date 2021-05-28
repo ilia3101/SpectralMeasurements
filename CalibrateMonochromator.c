@@ -15,11 +15,30 @@ int main(int argc, char ** argv)
     }
     else
     {
+        InitMeasurementSystem("/dev/ttyUSB1");
+
+        int current_wavelength = atoi(argv[1]);
+        int max_wavelength = atoi(argv[2]);
+        int min_wavelength = atoi(argv[3]);
+        int wavelength_step = atoi(argv[4]);
+        printf(
+            "Calibrating monochromator:\n"
+            "Current wavelength: %i\n"
+            "Max wavelength: %i\n"
+            "Max wavelength: %i\n"
+            "Wavelength step: %i\n",
+            current_wavelength,
+            max_wavelength,
+            min_wavelength,
+            wavelength_step
+        );
         MonochromatorCalibrate(
-            atoi(argv[1]),
-            atoi(argv[2]),
-            atoi(argv[3]),
-            atoi(argv[4])
+            current_wavelength,
+            max_wavelength,
+            min_wavelength,
+            wavelength_step
         );
     }
+
+    return 0;
 }

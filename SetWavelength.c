@@ -5,10 +5,9 @@
 
 int main(int argc, char ** argv)
 {
-    InitMeasurementSystem("/dev/ttyUSB1");
-
     if (argc == 2)
     {
+        InitMeasurementSystem("/dev/ttyUSB1");
         SetMonochromatorWavelength(atoi(argv[1]));
     }
     else

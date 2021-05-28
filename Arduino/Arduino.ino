@@ -49,6 +49,11 @@ void loop ()
                 response.value = 0;
                 break;
             }
+            case Arduino_TEST:
+            {
+                response.value = message.value_a * message.value_b;
+                break;
+            }
             default:
             {
                 /* Something is very wrong, stop forever */
