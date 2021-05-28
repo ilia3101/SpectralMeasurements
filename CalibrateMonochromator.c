@@ -15,7 +15,7 @@ int main(int argc, char ** argv)
     }
     else
     {
-        InitMeasurementSystem("/dev/ttyUSB1");
+        InitMeasurementSystem();
 
         int current_wavelength = atoi(argv[1]);
         int max_wavelength = atoi(argv[2]);

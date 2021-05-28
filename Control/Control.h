@@ -4,7 +4,7 @@
 #include <stdint.h>
 
 /* Call this at the start */
-int InitMeasurementSystem(char * DeviceFile);
+int InitMeasurementSystem();
 void FinishMeasurement();
 
 /* Sets monochromator wavelength */

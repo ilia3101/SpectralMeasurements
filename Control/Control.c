@@ -6,9 +6,9 @@ static int arduino_fd;
 static ArduinoMsg_t msg;
 static ArduinoResponse_t response;
 
-int InitMeasurementSystem(char * DeviceFile)
+int InitMeasurementSystem()
 {
-    arduino_fd = OpenArduino(DeviceFile);
+    arduino_fd = OpenArduino();
 
     if (arduino_fd < 0) return 1;
     else return 0;

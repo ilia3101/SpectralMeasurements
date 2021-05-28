@@ -14,7 +14,7 @@ int main(int argc, char ** argv)
 
     FILE * out = fopen(argv[1], "w");
 
-    InitMeasurementSystem("/dev/ttyUSB1");
+    InitMeasurementSystem("");
 
     /* Set integration time */
     SetIngtegrationTime(atoi(argv[2]));
