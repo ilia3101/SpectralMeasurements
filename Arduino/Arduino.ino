@@ -27,7 +27,7 @@ void loop ()
         {
             case Arduino_TAKE_READING:
             {
-                ServoPressShutter();
+                if (!message.value_a) ServoPressShutter();
                 response.value = DiodeMeasure(exposure_ms);  
                 break;
             }

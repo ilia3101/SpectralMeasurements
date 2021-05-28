@@ -57,5 +57,13 @@ uint32_t SetIngtegrationTime(uint32_t IntegrationTime)
 uint32_t TakeReading()
 {
     msg.type = Arduino_TAKE_READING;
+    msg.value_a = 0;
+    return send();
+}
+
+uint32_t TakeReadingOnlyDiode()
+{
+    msg.type = Arduino_TAKE_READING;
+    msg.value_a = 1;
     return send();
 }
