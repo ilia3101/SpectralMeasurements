@@ -28,7 +28,7 @@ void loop ()
             case Arduino_TAKE_READING:
             {
                 ServoPressShutter();
-                response.value = DiodeMeasure(exposure_ms);
+                response.value = DiodeMeasure(exposure_ms);  
                 break;
             }
             case Arduino_SET_INTEGRATION_TIME:

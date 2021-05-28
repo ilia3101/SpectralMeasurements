@@ -1,6 +1,6 @@
 #include "Servo.h"
 
-int servo = 5;
+int servo = 4;
 void ServoInit()
 {
     pinMode(servo, OUTPUT);
