@@ -4,6 +4,7 @@
 
 #include "Message.h"
 
+// the default value, will get overriden by SET_INTEGRATION_TIME message
 int exposure_ms = 2000;
 
 void setup()

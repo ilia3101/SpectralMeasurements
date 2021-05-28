@@ -23,6 +23,7 @@ int main(int argc, char ** argv)
     {
         SetMonochromatorWavelength(w);
         fprintf(out, "%i %i\n", w, TakeReadingOnlyDiode());
+        if (w % 20) fflush(out); /* So data is in the file if user quits it with control C */
     }
 
     fclose(out);
