@@ -8,7 +8,7 @@ int main(int argc, char ** argv)
 {
     if (argc != 3)
     {
-        puts("usage: ./MeasureSpectrum OUTPUT_FILENAME INTEGRATION_TIME_PER_READING_MS)");
+        puts("usage: ./MeasureSpectrum OUTPUT_FILENAME INTEGRATION_TIME");
         return 1;
     }
 
@@ -22,7 +22,7 @@ int main(int argc, char ** argv)
     for (int w = 300; w <= 800; ++w)
     {
         SetMonochromatorWavelength(w);
-        fprintf(out, "%i %i", w, TakeReadingOnlyDiode());
+        fprintf(out, "%i %i\n", w, TakeReadingOnlyDiode());
     }
 
     fclose(out);
