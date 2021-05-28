@@ -15,7 +15,7 @@
 Stepper stepper(stepsPerRevolution, 7, 8, 9, 10);
 
 /* Miniumum amount of time between moevements */
-#define MIN_REST_TIME 100
+#define MIN_REST_TIME 150
 
 /* Time last movement completed, used to ensure at least a MIN_REST_TIME ms rest between movements,
  * otherwise the stepper seems to drift if it does not rest between movements, due to vibrations perhaps. */
