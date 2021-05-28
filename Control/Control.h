@@ -20,4 +20,7 @@ uint32_t SetIngtegrationTime(uint32_t IntegrationTime);
  * Return value is diode reading */
 uint32_t TakeReading();
 
+/* Just take diode reading, no camera activation */
+uint32_t TakeReadingOnlyDiode();
+
 #endif

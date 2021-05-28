@@ -19,7 +19,8 @@
    a: time in milliseconds
    Returns 0 on success */
 #define Arduino_SET_INTEGRATION_TIME 3
-/* Takes reading, actuates camera shutter and sends back diode value */
+/* Takes reading, actuates camera shutter and sends back diode value
+   a: Set to 1 to not activate camera */
 #define Arduino_TAKE_READING 4
 
 typedef struct {

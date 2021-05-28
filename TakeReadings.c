@@ -43,11 +43,19 @@ int main()
 {
     InitMeasurementSystem("/dev/ttyUSB1");
 
+    FILE * file = fopen("diode.log", "w");
+
+    fprintf(file, "--- START");
+
+
     for (int s = 0; s < num_sections; ++s)
     {
+        /* Indicates start of new section */
+        fprintf(file, "--- SECTION");
+
         section_t section = sections[s];
 
-        for (int w = section.start_wavelength; w < section.max_wavelength; w += section.step_nm)
+        for (int w = section.start_wavelength; w <= section.max_wavelength; w += section.step_nm)
         {
             SetMonochromatorWavelength(w);
 
@@ -55,7 +63,8 @@ int main()
              * out the diode, giving the diode's reading as its return value */
             uint32_t diode_reading = TakeReading();
 
-            /* Save the reading */
+            /* Write wavelength and diode value */
+            fprintf(file, "%i %i", w, diode_reading);
         }
     }
     
