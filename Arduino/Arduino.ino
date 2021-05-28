@@ -20,8 +20,6 @@ void setup()
     DiodeInit();
     MonochromatorInit();
     buf = (uint8_t *)&message;
-    // clear all serial to avoid freezing 
-    //while (Serial.available()) Serial.read();
 }
 
 void loop ()
@@ -32,6 +30,7 @@ void loop ()
         buf[num_bytes] = Serial.read();
         ++num_bytes;
     }
+
     if (num_bytes == sizeof(ArduinoMsg_t))
     {
         num_bytes = 0;
@@ -75,15 +74,6 @@ void loop ()
         }
 
         SerialSendResponse(&response);
-    }
-}
-
-void SerialReceiveMessage(ArduinoMsg_t * Msg)
-{
-    uint8_t * msgdata = (uint8_t *)(void *)Msg;
-    for (int i = 0; i < sizeof(ArduinoMsg_t); ++i)
-    {
-        msgdata[i] = Serial.read();
     }
 }
 

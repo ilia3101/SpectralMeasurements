@@ -31,6 +31,9 @@ int _OpenArduino(char * PortName)
     /* set 9600 baud both ways */
     cfsetispeed(&toptions, B9600);
     cfsetospeed(&toptions, B9600);
+
+
+    // new
     /* 8 bits, no parity, no stop bits */
     toptions.c_cflag &= ~PARENB;
     toptions.c_cflag &= ~CSTOPB;
@@ -43,9 +46,29 @@ int _OpenArduino(char * PortName)
     /* disable canonical input, disable echo,
     disable visually erase chars,
     disable terminal-generated signals */
-    toptions.c_lflag &= ~(ICANON | ECHO | ECHOE | ISIG);
+    // toptions.c_lflag &= ~(ICANON | ECHO | ECHOE | ISIG);
     /* disable output processing */
     toptions.c_oflag &= ~OPOST;
+
+
+    // old
+    // /* 8 bits, no parity, no stop bits */
+    // toptions.c_cflag &= ~PARENB;
+    // toptions.c_cflag &= ~CSTOPB;
+    // toptions.c_cflag &= ~CSIZE;
+    // toptions.c_cflag |= CS8;
+    // /* No Canonical mode */
+    // // toptions.c_lflag &= ~ICANON;
+    // /* wait for 12 characters to come in before read returns */
+    // /* WARNING! THIS CAUSES THE read() TO BLOCK UNTIL ALL */
+    // /* CHARACTERS HAVE COME IN! */
+    // // toptions.c_cc[VMIN] = 0;
+    // // toptions.c_cc[VTIME] = 10; /* Timeout of 1 second */
+    // toptions.c_cc[VTIME] = 0;
+    // toptions.c_cc[VMIN] = sizeof(ArduinoResponse_t);
+
+
+
     /* commit the serial port settings */
     tcsetattr(fd, TCSANOW, &toptions);
 

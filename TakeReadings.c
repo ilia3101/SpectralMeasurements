@@ -45,13 +45,13 @@ int main()
 
     FILE * file = fopen("diode.log", "w");
 
-    fprintf(file, "--- START");
+    fprintf(file, "--- START\n");
 
 
     for (int s = 0; s < num_sections; ++s)
     {
         /* Indicates start of new section */
-        fprintf(file, "--- SECTION");
+        fprintf(file, "--- SECTION\n");
 
         section_t section = sections[s];
 
@@ -64,7 +64,7 @@ int main()
             uint32_t diode_reading = TakeReading();
 
             /* Write wavelength and diode value */
-            fprintf(file, "%i %i", w, diode_reading);
+            fprintf(file, "%i %i\n", w, diode_reading);
         }
     }
 
