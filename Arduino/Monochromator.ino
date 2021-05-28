@@ -14,9 +14,17 @@
 
 Stepper stepper(stepsPerRevolution, 7, 8, 9, 10);
 
+/* Miniumum amount of time between moevements */
+#define MIN_REST_TIME 100
+
+/* Time last movement completed, used to ensure at least a MIN_REST_TIME ms rest between movements,
+ * otherwise the stepper seems to drift if it does not rest between movements, due to vibrations perhaps. */
+static int last_movement = 0;
+
 void MonochromatorInit()
 {
     stepper.setSpeed(110);
+    last_movement = millis();
 }
 
 void MonochromatorConfigure(uint32_t CurrentWavelength, uint32_t MinWavelength, uint32_t MaxWavelength, uint16_t StepsPerNm, uint8_t StepDenom)
@@ -27,8 +35,14 @@ void MonochromatorConfigure(uint32_t CurrentWavelength, uint32_t MinWavelength, 
     SaveValue(VALUE_STEP_NM, StepsPerNm);
 }
 
-static void set_wavelength(uint32_t Wavelength)
+int MonochromatorSetWavelength(uint32_t Wavelength)
 {
+    uint32_t time_since_last_move = millis() - last_movement;
+    if (time_since_last_move < MIN_REST_TIME)
+    {
+        delay(MIN_REST_TIME - time_since_last_move);
+    }
+
     int32_t diff = Wavelength - GetValue(VALUE_CURRENT_WAVELENGTH);
     int32_t steps = diff * GetValue(VALUE_STEP_NM);
     
@@ -41,17 +55,9 @@ static void set_wavelength(uint32_t Wavelength)
         stepper.step(-35);
         stepper.step(+35);
     }
+    
+    last_movement = millis();
 
-    /* Motor is now draining all the arduino's power, so set all motor pins to zero. */
-//    digitalWrite(7, LOW);
-//    digitalWrite(8, LOW);
-//    digitalWrite(9, LOW);
-//    digitalWrite(10, LOW);
-}
-
-int MonochromatorSetWavelength(uint32_t Wavelength)
-{
-    set_wavelength(Wavelength);
     SaveValue(VALUE_CURRENT_WAVELENGTH, Wavelength);
     return 0;
 }
