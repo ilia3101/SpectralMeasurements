@@ -19,7 +19,7 @@ Stepper stepper(stepsPerRevolution, 7, 8, 9, 10);
 
 /* Time last movement completed, used to ensure at least a MIN_REST_TIME ms rest between movements,
  * otherwise the stepper seems to drift if it does not rest between movements, due to vibrations perhaps. */
-static int last_movement = 0;
+static uint32_t last_movement = 0;
 
 void MonochromatorInit()
 {
