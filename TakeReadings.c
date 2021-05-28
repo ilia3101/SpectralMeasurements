@@ -67,5 +67,7 @@ int main()
             fprintf(file, "%i %i", w, diode_reading);
         }
     }
-    
+
+    FinishMeasurement();
+    return 0;
 }

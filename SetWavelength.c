@@ -15,5 +15,6 @@ int main(int argc, char ** argv)
         puts("Enter wavelength as argument");
     }
 
+    FinishMeasurement();
     return 0;
 }

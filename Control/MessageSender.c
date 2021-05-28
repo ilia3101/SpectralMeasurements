@@ -36,13 +36,16 @@ int _OpenArduino(char * PortName)
     toptions.c_cflag &= ~CSTOPB;
     toptions.c_cflag &= ~CSIZE;
     toptions.c_cflag |= CS8;
-    /* No Canonical mode */
-    toptions.c_lflag &= ~ICANON;
-    /* wait for 12 characters to come in before read returns */
-    /* WARNING! THIS CAUSES THE read() TO BLOCK UNTIL ALL */
-    /* CHARACTERS HAVE COME IN! */
-    toptions.c_cc[VMIN] = sizeof(ArduinoResponse_t);
-    toptions.c_cc[VTIME] = 10; /* Timeout of 1 second */
+    /* enable receiver, ignore status lines */
+    toptions.c_cflag |= CREAD | CLOCAL;
+    /* disable input/output flow control, disable restart chars */
+    toptions.c_iflag &= ~(IXON | IXOFF | IXANY);
+    /* disable canonical input, disable echo,
+    disable visually erase chars,
+    disable terminal-generated signals */
+    toptions.c_lflag &= ~(ICANON | ECHO | ECHOE | ISIG);
+    /* disable output processing */
+    toptions.c_oflag &= ~OPOST;
     /* commit the serial port settings */
     tcsetattr(fd, TCSANOW, &toptions);
 
@@ -56,12 +59,8 @@ int _OpenArduino(char * PortName)
         .value_b = (rand()%100) + 1
     };
     ArduinoResponse_t response;
-    ArduinoSendMsg(fd, &test);
+    if (ArduinoSendMsg(fd, &test)) return -1;
     ArduinoRecieveResponse(fd, &response);
-
-    /* Disable the timeout now that testing is done */
-    toptions.c_cc[VTIME] = 0;
-    tcsetattr(fd, TCSANOW, &toptions);
 
     if (response.value = test.value_a * test.value_b)
         return fd;

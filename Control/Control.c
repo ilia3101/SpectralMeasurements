@@ -1,13 +1,25 @@
+#include <signal.h>
+#include <stdlib.h>
+
 #include "MessageSender.h"
 
 #include "Control.h"
 
-static int arduino_fd;
+static int arduino_fd = 0;
 static ArduinoMsg_t msg;
 static ArduinoResponse_t response;
 
+static void handle_control_c(int fghjkl)
+{
+    FinishMeasurement();
+    exit(0);
+}
+
 int InitMeasurementSystem()
 {
+    /* To make sure the arduino serial port always gets closed */
+    signal(SIGINT, handle_control_c);
+
     arduino_fd = OpenArduino();
 
     if (arduino_fd < 0) return 1;

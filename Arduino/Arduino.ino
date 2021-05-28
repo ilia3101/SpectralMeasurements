@@ -7,22 +7,34 @@
 // the default value, will get overriden by SET_INTEGRATION_TIME message
 int exposure_ms = 2000;
 
+// number of bytes received
+int num_bytes = 0;
+uint8_t * buf = 0;
+ArduinoMsg_t message;
+ArduinoResponse_t response;
+
 void setup()
 {
     Serial.begin(9600);
     ServoInit();
     DiodeInit();
     MonochromatorInit();
+    buf = (uint8_t *)&message;
+    // clear all serial to avoid freezing 
+    //while (Serial.available()) Serial.read();
 }
-
-ArduinoMsg_t message;
-ArduinoResponse_t response;
 
 void loop ()
 {
-    if (Serial.available() == sizeof(ArduinoMsg_t))
+    // read a serial bytes if available
+    if (Serial.available())
     {
-        SerialReceiveMessage(&message);
+        buf[num_bytes] = Serial.read();
+        ++num_bytes;
+    }
+    if (num_bytes == sizeof(ArduinoMsg_t))
+    {
+        num_bytes = 0;
         
         switch (message.type)
         {

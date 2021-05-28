@@ -28,5 +28,6 @@ int main(int argc, char ** argv)
 
     fclose(out);
 
+    FinishMeasurement();
     return 0;
 }
