@@ -1,5 +1,5 @@
 # SpectralMeasurements
-A system for measureing the spectral response of cameras. Does not include an integrating sphere, monochromator, or light source, those must be found separately.
+A system for measuring the spectral response of cameras. Does not include an integrating sphere, monochromator, or light source, those must be found separately.
 
 ## Compiling
 Just run
