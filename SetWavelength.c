@@ -7,7 +7,7 @@ int main(int argc, char ** argv)
 {
     if (argc == 2)
     {
-        InitMeasurementSystem("");
+        InitMeasurementSystem();
         SetMonochromatorWavelength(atoi(argv[1]));
     }
     else

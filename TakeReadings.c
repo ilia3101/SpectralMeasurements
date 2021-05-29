@@ -41,7 +41,7 @@ int do_pause = 1;
 
 int main()
 {
-    InitMeasurementSystem("");
+    InitMeasurementSystem();
 
     FILE * file = fopen("diode.log", "w");
 
