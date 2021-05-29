@@ -1,5 +1,12 @@
 # SpectralMeasurements
+A system for measureing the spectral response of cameras. Does not include an integrating sphere, monochromator, or light source, those must be found separately.
 
+## Compiling
+Just run
+```
+./compile.sh
+```
+Output will be in programs (a bunch of programs that can be run to control the system)
 
 
 ## Compiling arduino code
