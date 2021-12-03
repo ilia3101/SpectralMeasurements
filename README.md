@@ -4,6 +4,8 @@ This spectral measurement rig started as a lockdown project (March 2020 era). Sl
 
 ![chaos](https://user-images.githubusercontent.com/23642861/144686777-f576c793-c779-4354-8aaf-614a1862b31c.jpg)
 
+(No light source shown here, it goes in that empty spot on the left)
+
 I am considering upgrading the photodiode to a NIST tracable calibrated unit from Thorlabs (and then applying corrections to all previous results made with the current TSL235), but that would be expensive so I don't know when.
 
 I might also swap out the lens from an industar 61L/Z to something more neutral, maybe a ZEISS T*, and again correct all previous measurements to match the new setup. And again, this is expensive, so I don't know when I'll do this.
