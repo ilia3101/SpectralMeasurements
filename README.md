@@ -1,6 +1,8 @@
 # SpectralMeasurements
 
-This spectral measurement rig started as a lockdown project (March 2020 era). Slowly been finding and upgrading components using ebay, and I'm almost satisfied with the setup now. The monochromator is good (190-920nm range), the integrating sphere is pretty good (started off with a DIY styrofoam ball). It's a beautiful mess of wires, foil and tape:
+This spectral measurement rig started as a lockdown project (March 2020 era). Slowly been finding and upgrading components using ebay, and I'm almost satisfied with the setup now. The monochromator is good (190-920nm range), the integrating sphere is pretty good (started off with a DIY styrofoam ball).
+
+It's a beautiful mess of wires, foil and tape:
 
 ![chaos](https://user-images.githubusercontent.com/23642861/144686777-f576c793-c779-4354-8aaf-614a1862b31c.jpg)
 
