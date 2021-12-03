@@ -1,27 +1,11 @@
 # SpectralMeasurements
-A system for measuring the spectral response of cameras. Does not include an integrating sphere, monochromator, or light source, those must be found separately.
 
-## Compiling
-Just run
-```
-./compile.sh
-```
-Output will be in programs (a bunch of programs that can be run to control the system)
+The code in Arduino folder runs my automated spectral measurement system
+consisting of a monochromator, an intergrating sphere, a couple of filters,
+three motors and a lamp.
 
+The text output by serial is the photodiode measurements.
 
-## Compiling arduino code
-Works on chromeOS crostini!
+Not like anyone will build my exact setup anyway...
 
-1. Get arduino-cli and avr package
-```
-curl -fsSL https://raw.githubusercontent.com/arduino/arduino-cli/master/install.sh | BINDIR=./bin sudo sh
-./bin/arduino-cli core install arduino:avr
-```
-
-2. Compile
-From above directory (not from in here):
-```
-./bin/arduino-cli compile -b arduino:avr:nano Arduino
-./bin/arduino-cli upload -p /dev/ttyUSB0 -b arduino:avr:nano:cpu=atmega328old Arduino
-```
-May require a different ttyUSB number
+Will upload spectral data soon.
