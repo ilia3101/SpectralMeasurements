@@ -8,7 +8,7 @@
 
 // How long to let the camera write to card in milliseconds. Increase if an old camera unable to keep up
 #define CAMERA_BUFFERING_TIME 3000 /* Time for shooting *and* recording to card. Leave enough! */
-#define DIODE_INTEGRATION_TIME 2000 /* Because the diode is terrible we must have such a long integration time */
+#define DIODE_INTEGRATION_TIME 2000 /* Because TSL235 is terrible we must have such a long integration time */
 
 
 /*********************************************
@@ -20,11 +20,11 @@ Servo shutter_presser;
 void PressShutter()
 {
     int angle = 0;
-    int max_angle = 22;
+    int max_angle = 38;
     shutter_presser.write(max_angle);
-    delay(50);
+    delay(200);
     shutter_presser.write(0);
-    delay(20);
+    delay(50);
 }
 
 
@@ -126,7 +126,7 @@ void StepperStep(int32_t numsteps)
     // Spin the stepper motor
     //Step loss. Seems I don't have any problems with this anymore so it's 0
     int32_t step_loss = 0;
-    for (int32_t s = 0; s < numsteps * 16 + step_loss; s++)
+    for (int32_t s = 0; s < numsteps * 16 + step_loss; s++) /* 1/16 microstepping is enabled on the controller */
     {
         // These four lines result in 1 step:
         delayMicroseconds(steptime);
@@ -211,6 +211,7 @@ void setup()
 
     /****************** SHUTTER PRESSER ******************/
     shutter_presser.attach(4);
+    shutter_presser.write(0);
 
     /****************** STEPPER ******************/
     StepperInit();
@@ -238,4 +239,8 @@ void setup()
     SetWavelength(original_pos); // Return to original position, visually verify to make sure stepper hasn't lost steps/drifted
 
     while (1);
+}
+
+void loop()
+{
 }
