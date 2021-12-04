@@ -157,7 +157,7 @@ void SetWavelength(int32_t TargetWavelength)
     if (steps_required < 0) steps_required_int = (int32_t)(steps_required - 0.5);
     else steps_required_int = (int32_t)(steps_required + 0.5);
 
-    String str;
+    //String str;
     //Serial.println(str + "Steps required: " + steps_required_int);
 
     /* Backlash correction - always finish on a positive rotation */
@@ -207,11 +207,10 @@ void setup()
 
     /****************** FILTER WHEEL ******************/
     filterwheel.attach(5);
-    SetFilterWheel(FilterWheelPos_CLOSED);
+    SetFilterWheel(FilterWheelPos_CLOSED); /* Keep mostly closed cause the lamp makes a lot of heat */
 
     /****************** SHUTTER PRESSER ******************/
     shutter_presser.attach(4);
-    PressShutter();
 
     /****************** STEPPER ******************/
     StepperInit();
