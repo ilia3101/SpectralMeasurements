@@ -1,4 +1,20 @@
-# SpectralMeasurements
+# Spectral Measurements
+
+My camera spectral measurement repo.
+
+## Measured cameras
+
+I don't own every camera. Here's what I've measured so far:
+
+- Canon 5D Mark III (x2)
+- Sony A7
+- Lumix GH1
+- Lumix GF3
+- Pentax * IST DL
+
+Always looking for more cameras. Anyone in the UK willing to send me theirs for measurement?
+
+## History
 
 This spectral measurement rig started as a lockdown project (March 2020 era). Slowly been finding and upgrading components using ebay, and I'm almost satisfied with the setup now. The monochromator is good (190-920nm range), the integrating sphere is pretty good (started off with a DIY styrofoam ball).
 
