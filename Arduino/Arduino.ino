@@ -124,8 +124,8 @@ void StepperStep(int32_t numsteps)
     }
 
     // Spin the stepper motor
-    //Step loss is always in multiples of 4 according to somewhere on the internet, differnt value sseem to work best on different days :/
-    int32_t step_loss = 4*0;
+    //Step loss. Seems I don't have any problems with this anymore so it's 0
+    int32_t step_loss = 0;
     for (int32_t s = 0; s < numsteps * 16 + step_loss; s++)
     {
         // These four lines result in 1 step:
@@ -215,7 +215,7 @@ void setup()
 
     /****************** STEPPER ******************/
     StepperInit();
-    uint32_t prev = current_wavelength;
+    uint32_t original_pos = current_wavelength;
 
     /*********************************************
         Take actual measurements now
@@ -236,7 +236,7 @@ void setup()
     }
 
     SetFilterWheel(FilterWheelPos_CLOSED);
-    SetWavelength(prev);
+    SetWavelength(original_pos); // Return to original position, visually verify to make sure stepper hasn't lost steps/drifted
 
     while (1);
 }
