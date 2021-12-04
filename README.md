@@ -18,11 +18,11 @@ I'm always looking for more cameras. Anyone in the UK willing to send me theirs 
 
 ## How it works
 
-1. Full spectrum light passes through a monochromator, which narrows it down to one wavelength at a time
+1. Full spectrum light passes through a motorised monochromator, which narrows the spectrum down to one wavelength at a time
 2. For violet and red wavelengths the light is additionally filtered before entering the monochromator
-3. Monochromatic light of unknown intensity enters an integrating sphere, which allows it to be measured by:
-    1. photodiode (known response)
-    2. camera (unknown response)
+3. The monochromatic light of unknown intensity then enters an integrating sphere, where it is measured by:
+    1. photodiode with known response
+    2. camera with unknown response
 4. Readings from the photodiode and camera files are processed to calculate the camera's spectral response
 
 The monochromator has a significant zero error, so it is always positioned at a known wavelength (632.8nm) using a Helium Neon laser *before taking any measurements.*
