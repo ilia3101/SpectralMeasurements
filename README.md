@@ -12,7 +12,9 @@ I don't own every camera. Here's what I've measured so far:
 - Lumix GF3
 - Pentax * IST DL
 
-Always looking for more cameras. Anyone in the UK willing to send me theirs for measurement?
+I have measured a few more cameras including a Canon 5DS with a bad/old version of this setup.
+
+I'm always looking for more cameras. Anyone in the UK willing to send me theirs for measurement?
 
 ## History
 
