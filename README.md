@@ -48,4 +48,4 @@ Not cheap 😕
 - Replace the TSL235 with a NIST traceable calibrated photodiode from Thorlabs
 - Upgrade the lens from industar 61L/Z to something more neutral, maybe a Zeiss T*
 
-Once these upgrades are done, it will be easy to correct the old data to match the new data.
+Once these upgrades are done, it will be easy to correct the pre-upgrade data to match the post-upgrade data.
