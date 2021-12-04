@@ -1,8 +1,8 @@
 #include <Servo.h>
 
 /*  IMPORTANT:
-    When manually presetting the wavelength (633nm in this case), always go up in value,
-    so for example, set it to 620 first, then turn it up to 633, for consistent backlash
+    When manually presetting the wavelength (632.8nm in this case), always go up in value,
+    so for example, set it to 620 first, then turn it up to 632.8, for consistent backlash
     (always finish on a positive rotation)
 */
 
@@ -33,7 +33,7 @@ void PressShutter()
     In 10 * nanometres
  *********************************************/
 
-#define WAVELENGTH_START_POS 6332 /* HeNe Laser calibration wavelength. Set to this wavelength manually before running everything! */
+#define WAVELENGTH_START_POS 6328 /* HeNe Laser calibration wavelength. Set to this wavelength manually before running everything! */
 #define WAVELENGTH_START 3800 /* Will start taking measurements from this wavelength (380nm) */
 #define WAVELENGTH_END 7200 /* Will keep measuring until this wavelength is reached (720nm) */
 #define WAVELENGTH_STEP 20 /* Wavelength step, 2nm and 5nm are best */
