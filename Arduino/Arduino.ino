@@ -20,11 +20,11 @@ Servo shutter_presser;
 void PressShutter()
 {
     int angle = 0;
-    int max_angle = 38;
+    int max_angle = 40;
     shutter_presser.write(max_angle);
-    delay(200);
+    delay(240);
     shutter_presser.write(0);
-    delay(50);
+    delay(60);
 }
 
 
@@ -40,8 +40,6 @@ void PressShutter()
 
 #define STEPS_PER_REVOLUTION ((int32_t)200) /* For stepper */
 #define WAVELENGTH_PER_REVOLUTION 250 /* 25nm is one full rotation */
-
-double current_wavelength = WAVELENGTH_START_POS;
 
 
 /*********************************************
@@ -103,10 +101,11 @@ uint32_t DiodeMeasure(uint32_t IntegrationTime)
 /*********************************************
     Stepper motor (A4988 controller configured for microstepping)
  *********************************************/
+int stepPin = 12;
+int dirPin  = 13;
+int  enPin  = 10;
 
-#define dirPin 13
-#define stepPin 12
-#define powPin 11
+int32_t steps = 0;
 
 void StepperStep(int32_t numsteps)
 {
@@ -114,54 +113,56 @@ void StepperStep(int32_t numsteps)
         speed because it seems to vibrate less than others, there's
         probably a better value, I didn't spend long choosing */
     const int steptime = 220;
+    
+    steps += numsteps;
 
     // Set the spinning direction
     if (numsteps < 0) {
-        digitalWrite(dirPin, HIGH);
+        digitalWrite(dirPin, LOW);
         numsteps = -numsteps;
     } else {
-        digitalWrite(dirPin, LOW);
+        digitalWrite(dirPin, HIGH);
     }
 
+    delay(50);
+
     // Spin the stepper motor
-    //Step loss. Seems I don't have any problems with this anymore so it's 0
-    int32_t step_loss = 0;
-    for (int32_t s = 0; s < numsteps * 16 + step_loss; s++) /* 1/16 microstepping is enabled on the controller */
+    for (int32_t s = 0; s < numsteps * 16; s++)
     {
         // These four lines result in 1 step:
-        delayMicroseconds(steptime);
         digitalWrite(stepPin, HIGH);
         delayMicroseconds(steptime);
         digitalWrite(stepPin, LOW);
+        delayMicroseconds(steptime);
     }
+
+    delay(5);
 }
 
 void StepperInit()
 {
-    pinMode(stepPin, OUTPUT);
-    pinMode(dirPin, OUTPUT);
-    pinMode(powPin, OUTPUT);
+     pinMode(stepPin,OUTPUT);
 
-    /* Holding torque should exist after this */
-    digitalWrite(powPin, HIGH);
+     pinMode(dirPin,OUTPUT);
 
-    /* Delay always helps thigns settle */
-    delay(100);
+     pinMode(enPin , OUTPUT);
+
+     digitalWrite(stepPin, LOW);
+     digitalWrite(dirPin, HIGH);
+     digitalWrite( enPin , HIGH);
 }
 
 void SetWavelength(int32_t TargetWavelength)
 {
+    double current_wavelength = WAVELENGTH_START_POS + ((double)steps * (double)WAVELENGTH_PER_REVOLUTION) / (double)STEPS_PER_REVOLUTION;
     double wl_diff = (double)TargetWavelength - current_wavelength;
     double steps_required = ((double)wl_diff * (double)STEPS_PER_REVOLUTION) / (double)WAVELENGTH_PER_REVOLUTION;
-    int32_t steps_required_int;
+    int32_t steps_required_int = steps_required;
     if (steps_required < 0) steps_required_int = (int32_t)(steps_required - 0.5);
     else steps_required_int = (int32_t)(steps_required + 0.5);
 
-    //String str;
-    //Serial.println(str + "Steps required: " + steps_required_int);
-
     /* Backlash correction - always finish on a positive rotation */
-    int32_t backlash_steps = 30;
+    int32_t backlash_steps = 50;
     if (steps_required < 0)
     {
         StepperStep(steps_required - backlash_steps);
@@ -172,10 +173,6 @@ void SetWavelength(int32_t TargetWavelength)
     {
         StepperStep(steps_required);
     }
-
-    current_wavelength = current_wavelength + ((double)steps_required_int / (double)STEPS_PER_REVOLUTION) * (double)WAVELENGTH_PER_REVOLUTION;
-
-    //Serial.println(str + "New wavelength: " + current_wavelength/10 + "nm");
 }
 
 
@@ -215,7 +212,10 @@ void setup()
 
     /****************** STEPPER ******************/
     StepperInit();
-    uint32_t original_pos = current_wavelength;
+    uint32_t original_pos = WAVELENGTH_START_POS;
+    
+    /* wait (time to plug in stepper) */
+    delay(5000);
 
     /*********************************************
         Take actual measurements now
@@ -236,7 +236,7 @@ void setup()
     }
 
     SetFilterWheel(FilterWheelPos_CLOSED);
-    SetWavelength(original_pos); // Return to original position, visually verify to make sure stepper hasn't lost steps/drifted
+    SetWavelength(original_pos);
 
     while (1);
 }
