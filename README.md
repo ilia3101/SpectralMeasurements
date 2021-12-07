@@ -1,6 +1,8 @@
 # Spectral Measurements
 
-My camera spectral measurement repo with data and source code.
+My camera spectral measurement repo with data and source code. Been working on this since early 2020 on and off (mostly off).
+
+<img src="https://user-images.githubusercontent.com/23642861/144692391-57ce9639-8922-4689-961b-6ae15a40ab84.jpg" width="190"> <img src="https://user-images.githubusercontent.com/23642861/144686777-f576c793-c779-4354-8aaf-614a1862b31c.jpg" width="350"> <img src="https://user-images.githubusercontent.com/23642861/145107468-e4b5e417-2e17-43f4-a630-d38e1b3f1d5e.png" width="320">
 
 ## Measured cameras
 
@@ -12,9 +14,11 @@ Cameras measured so far:
 - Lumix GF3
 - Pentax * IST DL
 
-I have measured a few more cameras with a bad/old version of this setup, might upload that data to an 'old' folder.
+I'm currently remeasuring the listed cameras with the current correctly working setup, and will upload once they are done.
 
-I'm always looking for more cameras. Anyone in the UK willing to send me theirs for measurement?
+I have measured a few more cameras with a bad/old version of this setup, but I don't have access to those cameras anymore, so I won't be able to remeasure them.
+
+I'm always looking for more cameras. Anyone want to send theirs for measurement?
 
 ## How it works
 
@@ -31,21 +35,16 @@ The monochromator has a significant zero error, so it is always positioned at a 
 
 In action!!!11!!1 (not really, the 12V and 5V cables aren't even plugged in) 
 
-![In action](https://user-images.githubusercontent.com/23642861/144692391-57ce9639-8922-4689-961b-6ae15a40ab84.jpg)
+![In action]()
 
 Another angle:
 
-![wires, foil and tape](https://user-images.githubusercontent.com/23642861/144686777-f576c793-c779-4354-8aaf-614a1862b31c.jpg)
-
-## History
-
-This spectral measurement rig started as a lockdown project (March 2020 era). Slowly been finding and upgrading components using ebay, I'm almost satisfied with the setup now.
-
+![wires, foil and tape](
 ## Upgrade ideas
 
 Not cheap 😕
 
-- Replace the TSL235 with a NIST traceable calibrated photodiode from Thorlabs
+- Replace the TSL235 with a NIST traceable calibrated photodiode from Thorlabs (or maybe something cheaper, but still better)
 - Upgrade the lens from industar 61L/Z to something more neutral, maybe a Zeiss T*
 
 Once these upgrades are done, it will be easy to correct the pre-upgrade data to match the post-upgrade data.
