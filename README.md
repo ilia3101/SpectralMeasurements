@@ -1,6 +1,6 @@
 # Spectral Measurements
 
-My camera spectral measurement repo with data and source code. Been working on this since early 2020 on and off (mostly off).
+My camera spectral measurement repo with data and source code. Have been working on this since early 2020 on and off (mostly off).
 
 <img src="https://user-images.githubusercontent.com/23642861/144692391-57ce9639-8922-4689-961b-6ae15a40ab84.jpg" width="170"> <img src="https://user-images.githubusercontent.com/23642861/144686777-f576c793-c779-4354-8aaf-614a1862b31c.jpg" width="313"> <img src="https://user-images.githubusercontent.com/23642861/145107468-e4b5e417-2e17-43f4-a630-d38e1b3f1d5e.png" width="294">
 
@@ -14,7 +14,7 @@ Cameras measured so far:
 - Lumix GF3
 - Pentax * IST DL
 
-I'm currently remeasuring the listed cameras with the current correctly working setup, and will upload once they are done.
+I'm currently remeasuring the listed cameras with the correctly working setup, and will upload once they are done.
 
 I have measured a few more cameras with a bad/old version of this setup, but I don't have access to those cameras anymore, so I won't be able to remeasure them.
 
@@ -29,17 +29,8 @@ I'm always looking for more cameras. Anyone want to send theirs for measurement?
     2. camera with unknown response
 4. Readings from the photodiode and camera files are processed to calculate the camera's spectral response
 
-The monochromator has a significant zero error, so it is always positioned at a known wavelength (632.8nm) using a Helium Neon laser *before taking any measurements.*
+The monochromator has a significant zero error, so it is always positioned at a known wavelength (632.8nm) using a Helium Neon laser before taking measurements (not every time, I have marked the position).
 
-## The setup
-
-In action!!!11!!1 (not really, the 12V and 5V cables aren't even plugged in) 
-
-![In action]()
-
-Another angle:
-
-![wires, foil and tape](
 ## Upgrade ideas
 
 Not cheap 😕
