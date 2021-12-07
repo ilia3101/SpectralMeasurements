@@ -7,8 +7,8 @@
 */
 
 // How long to let the camera write to card in milliseconds. Increase if an old camera unable to keep up
-#define CAMERA_BUFFERING_TIME 3000 /* Time for shooting *and* recording to card. Leave enough! */
-#define DIODE_INTEGRATION_TIME 2000 /* Because TSL235 is terrible we must have such a long integration time */
+#define CAMERA_BUFFERING_TIME 3500 /* Time for shooting *and* recording to card. Leave enough! */
+#define DIODE_INTEGRATION_TIME 5200 /* Because TSL235 is terrible we must have such a long integration time */
 
 
 /*********************************************
@@ -63,7 +63,7 @@ void SetFilterWheel(int FilterOption)
 /* Sets filter automatically for wavelength */
 void SetFilterForWavelength(uint32_t wavelength)
 {
-    if (wavelength >= 3800 && wavelength <= 4200) {
+    if (wavelength >= 3800 && wavelength < 4200) {
         SetFilterWheel(FilterWheelPos_VIOLET_420);
     } else if (wavelength > 6450) {
         SetFilterWheel(FilterWheelPos_RED_645);
@@ -183,12 +183,12 @@ void SetWavelength(int32_t TargetWavelength)
 // Reads diode, outputs to serial and presses the shutter
 void TakeReading()
 {
+    /* Camera reading */
+    PressShutter();
+
     /* Diode reading */
     uint32_t diode_value = DiodeMeasure(DIODE_INTEGRATION_TIME);
     Serial.println(diode_value);
-
-    /* Camera reading */
-    PressShutter();
 
     /* Allow camera to write or whatever */
     delay(CAMERA_BUFFERING_TIME);
