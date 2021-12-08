@@ -175,6 +175,7 @@ int main(int argc, char ** argv)
                     for (int j = 0; j < camera_data_width; ++j)
                     {
                         double camera_value = camera_data[(i+1)*camera_data_width+j] - camera_data[i*camera_data_width+j];
+                        if (camera_value < 0.0) camera_value = 0.0;
                         if (diode_response_len > 0)
                         {
                             /* Factor in diode response in this case */
