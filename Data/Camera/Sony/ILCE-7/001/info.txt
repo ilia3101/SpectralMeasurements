@@ -1,6 +1,6 @@
 raw/DSC0
 9679
 .ARW
-../../../../Diode/TSL235_2020.txt
+../../../../Diode/TSL235_2020.dat
 3800
 20

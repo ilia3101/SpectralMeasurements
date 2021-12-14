@@ -10,3 +10,8 @@ cd process_data_src
 gcc process_data.c -o process_data
 mv process_data ../process_data
 cd ..
+
+cd verify_src
+gcc verify.c -o verify
+mv verify ../verify
+cd ..

@@ -15,7 +15,7 @@ SHOULD JUST USE NUMPY
 
 double linear_interpolate(double value, double * x_values, int x_stride, double * y_values, int y_stride, int num_values)
 {
-    printf("value %lf, x_values %p, x_stride %i, y_values %p, y_stride %i, num_values %i\n", value, x_values, x_stride, y_values, y_stride, num_values);
+    // printf("value %lf, x_values %p, x_stride %i, y_values %p, y_stride %i, num_values %i\n", value, x_values, x_stride, y_values, y_stride, num_values);
     if (x_values == NULL) return 1.0;
     if (y_values == NULL) return 1.0;
 
@@ -180,7 +180,7 @@ int main(int argc, char ** argv)
                         {
                             /* Factor in diode response in this case */
                             double diode_response = linear_interpolate(((double)wavelength) / 10.0, diode_response_data, 2, diode_response_data+1, 2, diode_response_len);
-                            fprintf(output, " %lf", (camera_value / diode_value) / diode_response);
+                            fprintf(output, " %lf", (camera_value / (diode_value / diode_response)));
                         }
                         else
                         {

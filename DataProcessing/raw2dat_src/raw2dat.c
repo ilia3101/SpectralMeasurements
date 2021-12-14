@@ -73,7 +73,7 @@ int main(int argc, char ** argv)
 
                     delete_RawReader(raw);
                 }
-                else
+                else if (raw_file_num != 0)
                 {
                     keep_going = 0;
                 }
