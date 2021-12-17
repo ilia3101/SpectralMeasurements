@@ -2,7 +2,7 @@
 
 My camera spectral measurement repo with data and source code. Have been working on this since early 2020 on and off (mostly off).
 
-<img src="https://user-images.githubusercontent.com/23642861/144692391-57ce9639-8922-4689-961b-6ae15a40ab84.jpg" width="170"> <img src="https://user-images.githubusercontent.com/23642861/144686777-f576c793-c779-4354-8aaf-614a1862b31c.jpg" width="313"> <img src="https://user-images.githubusercontent.com/23642861/145107468-e4b5e417-2e17-43f4-a630-d38e1b3f1d5e.png" width="294">
+<img src="https://user-images.githubusercontent.com/23642861/144692391-57ce9639-8922-4689-961b-6ae15a40ab84.jpg" width="170"> <img src="https://user-images.githubusercontent.com/23642861/144686777-f576c793-c779-4354-8aaf-614a1862b31c.jpg" width="313"> <img src="https://user-images.githubusercontent.com/23642861/146589733-3cd6d355-fbcd-4ee3-8e5e-60af4300f4f6.png" width="245">
 
 ## Measured cameras
 
