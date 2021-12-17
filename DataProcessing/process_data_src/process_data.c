@@ -123,6 +123,7 @@ int main(int argc, char ** argv)
         sprintf(info_file_path, "%s/info.txt", base_path);
         FILE * info_file = fopen(info_file_path, "r");
 
+        puts("Processing data");
         if (info_file)
         {
             char diode_response[500];
@@ -148,6 +149,8 @@ int main(int argc, char ** argv)
 
             int diode_response_len = 0;
             double * diode_response_data = read_data_file(diode_response_full_path, &diode_response_len, NULL);
+            if (diode_response_len != 0) puts("Suckcess, Diode response loaded!");
+            if (diode_response_len == 0) puts("Diode response NOT FOUND !!!!!!!!!!!!!!\n DATW MAY COME OUT WRONGF!");
             int camera_data_len = 0;
             int camera_data_width = 0;
             double * camera_data = read_data_file(camera_data_full_path, &camera_data_len, &camera_data_width);
@@ -168,14 +171,14 @@ int main(int argc, char ** argv)
                     fprintf(output, "%lf", (double)wavelength/10.0);
 
                     double diode_value = diode_data[i+1] - diode_data[i];
-                    // if (i < camera_data_len-3) 
-                    //     diode_value = diode_data[i+1] - (diode_data[i]+diode_data[i+2])/2.0;
+                    if (i < camera_data_len-3) 
+                        diode_value = diode_data[i+1] - (diode_data[i]+diode_data[i+2])/2.0;
 
                     /* Loop thru channels */
                     for (int j = 0; j < camera_data_width; ++j)
                     {
                         double camera_value = camera_data[(i+1)*camera_data_width+j] - camera_data[i*camera_data_width+j];
-                        if (camera_value < 0.0) camera_value = 0.0;
+                        if (camera_value < 0.0) camera_value = 0.0; // cause negative values rnt possible. This can happen in infrared region where response is probably 0 anyway
                         if (diode_response_len > 0)
                         {
                             /* Factor in diode response in this case */
@@ -193,6 +196,10 @@ int main(int argc, char ** argv)
             }
 
             fclose(output);
+        }
+        else
+        {
+            puts("NOt processing data! No info.txt file found.");
         }
     }
 

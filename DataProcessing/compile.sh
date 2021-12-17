@@ -15,3 +15,8 @@ cd verify_src
 gcc verify.c -o verify
 mv verify ../verify
 cd ..
+
+cd process_camera_model_src
+gcc process_camera_model.c -o process_camera_model
+mv process_camera_model ../process_camera_model
+cd ..

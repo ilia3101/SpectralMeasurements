@@ -39,3 +39,10 @@ Not cheap 😕
 - Upgrade the lens from industar 61L/Z to something more neutral, maybe a Zeiss T*
 
 Once these upgrades are done, it will be easy to correct the pre-upgrade data to match the post-upgrade data.
+
+
+## plot command
+
+```
+DAT='/path/to/response.dat'; gnuplot -e "plot '$DAT' using 1:2 with line lw 2 lc \"red\", '$DAT' using 1:3 with line lw 2 lc \"green\", '$DAT' using 1:4 with line lw 2 lc \"blue\"; pause 100;"
+```
