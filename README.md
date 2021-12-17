@@ -50,5 +50,5 @@ DAT='/path/to/response.dat'; gnuplot -e "plot '$DAT' using 1:2 with line lw 2 lc
 
 Add all camera data to git
 ```
-git add $(find Data -name "*.txt") $(find Data -name "*.dat")
+git add $(find Data -name "*.dat" | sed 's/^/"/g' | sed 's/$/"/g' | tr '\n' ' ') $(find Data -name "*.txt" | sed 's/^/"/g' | sed 's/$/"/g' | tr '\n' ' ')
 ```
