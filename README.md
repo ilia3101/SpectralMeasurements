@@ -36,7 +36,7 @@ The monochromator has a significant zero error, so it is always positioned at a 
 Not cheap 😕
 
 - Replace the TSL235 with a NIST traceable calibrated photodiode from Thorlabs (or maybe something cheaper, but still better, I have a photodiode that I need to build a circuit for)
-- Upgrade the lens from industar 61L/Z to something more neutral, maybe a Zeiss T*
+- Upgrade the lens from industar 61L/Z to something more neutral, maybe a Zeiss T*, or even use manufacturer-specific lenses to better match actual usage? Does this even matter? Not really.
 
 Once these upgrades are done, it will be easy to correct the pre-upgrade data to match the post-upgrade data.
 
