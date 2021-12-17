@@ -14,7 +14,7 @@ Cameras measured so far:
 - Lumix GF3
 - Pentax * IST DL
 
-I'm currently remeasuring the listed cameras with the correctly working setup, and will upload once they are done.
+I am remeasuring the listed cameras with the correctly working setup, and will upload data once they are done.
 
 I have measured a few more cameras with a bad/old version of this setup, but I don't have access to those cameras anymore, so I won't be able to remeasure them.
 
