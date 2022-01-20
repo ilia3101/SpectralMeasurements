@@ -66,7 +66,7 @@ int main(int argc, char ** argv)
                     /* Get raw value an output it */
                     RawReader_t * raw = new_RawReader(raw_path);
                     double channel_sums[4];
-                    RawGetChannelAverages(raw, channel_sums, MAX((RawGetHeight(raw)/3.0), 350));
+                    RawGetChannelAverages(raw, channel_sums, MAX((RawGetHeight(raw)/4.0), 350));
 
                     fprintf(output_file, "%lf %lf %lf\n", channel_sums[0], (channel_sums[1]+channel_sums[2])/2.0, channel_sums[3]); // average the two greens
                     fflush(output_file);

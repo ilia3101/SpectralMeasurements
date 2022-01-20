@@ -9,7 +9,7 @@ import colour
 import os
 
 iso_tr_data_path = 'C037358e Electronic inserts/'
-output_folder = 'ISO/'
+output_folder = 'ReflectanceISO/'
 
 if not os.path.exists(output_folder):
     os.mkdir(output_folder)
