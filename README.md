@@ -10,6 +10,7 @@ Cameras measured so far:
 
 - Canon 5D Mark III (x2)
 - Sony A7
+- Sony A7 II
 - Lumix GH1
 - Lumix GF3
 - Pentax * IST DL
