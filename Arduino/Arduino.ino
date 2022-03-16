@@ -6,10 +6,20 @@
     (always finish on a positive rotation)
 */
 
-// How long to let the camera write to card in milliseconds. Increase if an old camera unable to keep up
-#define CAMERA_BUFFERING_TIME 3500 /* Time for shooting *and* recording to card. Leave enough! */
-#define DIODE_INTEGRATION_TIME 5200 /* Because TSL235 is terrible we must have such a long integration time */
+// How long to let the camera write to card in milliseconds. Increase if an old camera is unable to keep up
+#define CAMERA_BUFFERING_TIME 4000
+/* Set camera to 6 seconds, so diode integrates within shutter beginning and ending */
+#define DIODE_INTEGRATION_TIME 3750 /* Because TSL235 is terrible we must have such a long integration time */
 
+/*********************************************
+    OLED display
+ *********************************************/
+
+#include <Wire.h>
+#include <Adafruit_SSD1306.h>
+#include <Adafruit_GFX.h>
+
+Adafruit_SSD1306 display(-1);
 
 /*********************************************
     Shutter presser
@@ -22,9 +32,9 @@ void PressShutter()
     int angle = 0;
     int max_angle = 40;
     shutter_presser.write(max_angle);
-    delay(240);
+    delay(250);
     shutter_presser.write(0);
-    delay(60);
+    delay(50); // CHANGE THIS BAC TO 70 and the first delay to 220 or smthng
 }
 
 
@@ -35,7 +45,7 @@ void PressShutter()
 
 #define WAVELENGTH_START_POS 6328 /* HeNe Laser calibration wavelength. Set to this wavelength manually before running everything! */
 #define WAVELENGTH_START 3800 /* Will start taking measurements from this wavelength (380nm) */
-#define WAVELENGTH_END 7200 /* Will keep measuring until this wavelength is reached (720nm) */
+#define WAVELENGTH_END 7500 /* Will keep measuring until this wavelength is reached (730nm) */
 #define WAVELENGTH_STEP 20 /* Wavelength step, 2nm and 5nm are best */
 
 #define STEPS_PER_REVOLUTION ((int32_t)200) /* For stepper */
@@ -65,7 +75,7 @@ void SetFilterForWavelength(uint32_t wavelength)
 {
     if (wavelength >= 3800 && wavelength < 4200) {
         SetFilterWheel(FilterWheelPos_VIOLET_420);
-    } else if (wavelength > 6450) {
+    } else if (wavelength >= 6480) {
         SetFilterWheel(FilterWheelPos_RED_645);
     } else {
         SetFilterWheel(FilterWheelPos_NOFILTER);
@@ -206,6 +216,9 @@ void setup()
     filterwheel.attach(5);
     SetFilterWheel(FilterWheelPos_CLOSED); /* Keep mostly closed cause the lamp makes a lot of heat */
 
+    //SetFilterWheel(FilterWheelPos_RED_645);
+    //SetFilterWheel(FilterWheelPos_VIOLET_420);
+    //while(1);
     /****************** SHUTTER PRESSER ******************/
     shutter_presser.attach(4);
     shutter_presser.write(0);
@@ -213,13 +226,38 @@ void setup()
     /****************** STEPPER ******************/
     StepperInit();
     uint32_t original_pos = WAVELENGTH_START_POS;
+
+    /****************** DISPLAY ******************/
+    display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
+    display.clearDisplay();
+    display.display();
     
+    display.clearDisplay();
+    display.setTextSize(1);
+    display.setTextColor(WHITE);
+    display.setCursor(2,2);
+    display.print("Plug in stepper motor NOW");
+    display.display();
+
     /* wait (time to plug in stepper) */
-    delay(5000);
+    delay(8000);
+    
+    display.clearDisplay();
+    display.setTextSize(1);
+    display.setTextColor(WHITE);
+    display.setCursor(2,2);
+    display.print("Setting start wavelength");
+    display.display();
 
     /*********************************************
         Take actual measurements now
      *********************************************/
+    if (WAVELENGTH_START-WAVELENGTH_STEP > 3000)
+      SetWavelength(WAVELENGTH_START-WAVELENGTH_STEP);
+    else
+      SetWavelength(300);
+
+    uint32_t time_start = millis();
 
     for (int32_t wl = WAVELENGTH_START; wl <= WAVELENGTH_END; wl += WAVELENGTH_STEP)
     {
@@ -227,13 +265,34 @@ void setup()
         SetWavelength(wl);
 
         /* Dark reading */
-        SetFilterWheel(FilterWheelPos_CLOSED);
         TakeReading();
 
         /* Main reading */
         SetFilterForWavelength(wl);
         TakeReading();
+        SetFilterWheel(FilterWheelPos_CLOSED);
+
+        uint32_t time_now = millis();
+        uint32_t time_per_reading = (time_now - time_start) / ((wl-WAVELENGTH_START)/WAVELENGTH_STEP + 1);
+        uint32_t time_left = time_per_reading * ((WAVELENGTH_END-wl)/WAVELENGTH_STEP);
+        display.clearDisplay();
+        display.setTextSize(1);
+        display.setTextColor(WHITE);
+        display.setCursor(2,2);
+        display.print("Minutes left: ");
+        display.print(((double)time_left)/60000.0);
+        display.setCursor(2,12);
+        display.print("Wavelength: ");
+        display.print(((double)wl)/10.0);
+        display.display();
     }
+
+    display.clearDisplay();
+    display.setTextSize(2);
+    display.setTextColor(WHITE);
+    display.setCursor(2,2);
+    display.print("Finished!");
+    display.display();
 
     SetFilterWheel(FilterWheelPos_CLOSED);
     SetWavelength(original_pos);
