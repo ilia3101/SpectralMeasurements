@@ -12,6 +12,7 @@ Cameras measured so far:
 - Sony A7
 - Sony A7 II
 - Lumix GH1
+- Lumix GH2
 - Lumix GF3
 - Pentax * IST DL
 
