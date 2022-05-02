@@ -15,6 +15,7 @@ Cameras measured so far:
 - Lumix GH2
 - Lumix GF3
 - Pentax * IST DL
+- Samsung NX1100
 
 I am remeasuring the listed cameras with the correctly working setup, and will upload data once they are done.
 
