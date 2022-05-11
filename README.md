@@ -2,6 +2,8 @@
 
 My camera spectral measurement repo with data and source code. Have been working on this since early 2020 on and off (mostly off).
 
+I intend to use the data to experiment with and hopefully create better camera profiles than today's horrible 3x3 matrix ones.
+
 <img src="https://user-images.githubusercontent.com/23642861/144692391-57ce9639-8922-4689-961b-6ae15a40ab84.jpg" height="370"> = <img src="https://user-images.githubusercontent.com/23642861/146609394-be3a07db-1217-4a57-93ca-8adcd098d4d2.png" height="370">
 
 ## Measured cameras
@@ -17,11 +19,9 @@ Cameras measured so far:
 - Pentax * IST DL
 - Samsung NX1100
 
-I am remeasuring the listed cameras with the correctly working setup, and will upload data once they are done.
+I have measured a few more cameras with a bad/old version of this setup, but I don't have access to those cameras anymore. I plan to re-process that data to match the new data soon.
 
-I have measured a few more cameras with a bad/old version of this setup, but I don't have access to those cameras anymore, so I won't be able to remeasure them.
-
-I'm always looking for more cameras. Anyone want to send theirs for measurement?
+I'm always looking for more cameras. Anyone want to lend theirs for measurement?
 
 ## How it works
 
