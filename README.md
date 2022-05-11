@@ -11,6 +11,7 @@ I intend to use the data to experiment with and hopefully create better camera p
 Cameras measured so far:
 
 - Canon 5D Mark III (x2)
+- Canon 6D
 - Sony A7
 - Sony A7 II
 - Lumix GH1
