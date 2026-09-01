@@ -1,11 +1,14 @@
 import argparse
 import pickle
+import datetime
 import random
 import time
+from time import gmtime, strftime
+from enum import IntEnum
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Callable, List, Optional, Tuple
+from typing import Any, Callable, List, Optional, Tuple, Generator
 
 import matplotlib.pyplot as plt
 import pigpio
@@ -13,7 +16,8 @@ import pigpio
 PERSISTENT_STORAGE_PATH: str = "/home/ilia"
 
 
-def plot_line(x, y, filename="plot.png"):
+def plot_line(x, y, filename="plot_new.png"):
+    print("Saving plot...")
     plt.plot(x, y)
     plt.savefig(filename)
     plt.close()
@@ -64,7 +68,7 @@ def send_pulses(
 
 def set_servo_position(pi, pin: int, pos: float):
     duration_us = int(pos * 2000 + 500.5)
-    send_pulses(pi, pin, 1, 20000, duration_us)
+    send_pulses(pi, pin, 1, 2500, duration_us)
 
 
 def take_measurements(
@@ -172,7 +176,7 @@ class WlControl:
 
     def _go_to_step(self, step: int) -> None:
         steps = step - self.current_step
-        print(f"Moving {steps} steps")
+        # print(f"Moving {steps} steps")
         step_stepper(
             self.pi,
             self.step_dir,
@@ -188,28 +192,101 @@ def measure_sweep(
     from_wl: float,
     to_wl: float,
     steps: int,
-) -> Tuple[List[float], List[int], List[Any]]:
+) -> Generator[Tuple[float, int, Any], None, None]:
     """
     Returns: Tuple(Wavelengths, Step positions, Readings from read_cb)
     """
-    wls = []
-    step_values = []
-    readings = []
+    # wls = []
+    # step_values = []
+    # readings = []
     for i in range(0, steps):
         wl = from_wl + (to_wl - from_wl) * (i / (steps - 1))
         wlc.set_wl(wl)
-        wls.append(wl)
-        step_values.append(wlc.current_step)
-        readings.append(read_cb())
+        # wls.append(wl)
+        # step_values.append(wlc.current_step)
+        reading = read_cb()
+        # readings.append(reading)
+
+        yield (wl, wlc.current_step, reading)
 
         print(wl)
-        print(read_cb())
+        print(reading)
 
-    return (wls, step_values, readings)
+    # return (wls, step_values, readings)
 
+# class syntax
+class FilterOption(IntEnum):
+    NO_FILTER = 0
+    VIOLET_375_425 = 3
+    DEEP_RED = 2
+
+# Position options 0, 1, 2, 3
+def set_filter_wheel(pi, pos: FilterOption):
+    POS_FIRST_BACKLASH_POS = 0.455
+    POS_FIRST = 0.473
+    POS_FINAL = 0.893
+
+    position = POS_FIRST + ((POS_FINAL - POS_FIRST) / 3) * int(pos)
+    start_time = time.perf_counter()
+
+    # ALl the extra movement is to combat friction/backlash issues
+    for i in range(0,20):
+        set_servo_position(pi, 24, POS_FIRST_BACKLASH_POS)
+        time.sleep(0.01)
+    time.sleep(0.05)
+
+    current_position = POS_FIRST
+    speed_factor_per_second = 0.4
+
+    while current_position < position:
+        elapsed = time.perf_counter() - start_time
+        current_position = POS_FIRST + elapsed * speed_factor_per_second
+        set_servo_position(pi, 24, current_position)
+        time.sleep(0.005)
+
+    for i in range(0,10):
+        set_servo_position(pi, 24, position)
+        time.sleep(0.01)
+
+def set_light_cover(pi, closed: bool):
+    servopos = 1.0 if closed else 0.0
+    for i in range(0,20):
+        set_servo_position(pi, 25, servopos)
+        time.sleep(0.01)
+    time.sleep(0.3)
+
+def activate_camera(pi):
+    set_pin(pi, 14, 0)
+    time.sleep(0.1)
+    set_pin(pi, 14, 1)
 
 def main():
     pi = pigpio.pi()
+
+    # Light cover test
+    set_light_cover(pi, True)
+    set_light_cover(pi, False)
+    set_light_cover(pi, True)
+
+    # Camera test
+    set_pin(pi, 14, 0)
+    time.sleep(0.1)
+    set_pin(pi, 14, 1)
+    activate_camera(pi)
+
+    # Filter test
+    set_filter_wheel(pi, FilterOption.NO_FILTER)
+    time.sleep(0.5)
+    set_filter_wheel(pi, FilterOption.VIOLET_375_425)
+    time.sleep(0.5)
+    set_filter_wheel(pi, FilterOption.DEEP_RED)
+    time.sleep(0.5)
+    set_filter_wheel(pi, FilterOption.NO_FILTER)
+    time.sleep(0.5)
+
+    for i in range(0,2):
+        diode_value = measure_pulses(pi, 4, 1.75)
+        print(f"Diode = {diode_value}")
 
     # (step pin, direction pin)
     STEPPER_PINS = (27, 22)
@@ -218,30 +295,81 @@ def main():
     SERVO_PIN = 24
 
     wl_control = WlControl(pi, STEPPER_PINS)
-    # wl_control.set_wl(530)
-    # time.sleep(25)
+    # wl_control.set_wl(420)
+    # time.sleep(1)
+    # wl_control.set_wl(690)
+    # time.sleep(1)
     # wl_control.set_wl(632.8)
-    #
 
-    widen = 0
-    wls, step_pos_list, readings = measure_sweep(
-        wl_control, lambda: measure_pulses(pi, 4, 0.3), 629 - widen, 635 + widen, 17
-    )
+    start_wl = 390
+    wl_step = 3.0
+    max_wl = 710
+
+    current_wl = start_wl
+
+    while current_wl < max_wl:
+        print(f"current wl = {current_wl}")
+        wl_control.set_wl(current_wl)
+        set_light_cover(pi, False)
+
+        # activate camera and measure pulses (light)
+        activate_camera(pi)
+        diode_value_light = measure_pulses(pi, 4, 1.75)
+        print(f"{current_wl}, {strftime('%Y-%m-%d %H:%M:%S', gmtime())}, LIGHT, {diode_value_light}")
+
+        # Cover the light, take a dark frame
+        set_light_cover(pi, True)
+
+        # activate camera and measure pulses (dark)
+        activate_camera(pi)
+        diode_value_dark = measure_pulses(pi, 4, 1.75)
+
+        print(f"{current_wl}, {strftime('%Y-%m-%d %H:%M:%S', gmtime())}, DARK, {diode_value_dark}")
+
+        # Cool down break
+        time.sleep(3)
+
+        current_wl += wl_step
 
     wl_control.set_wl(632.8)
 
-    plot_line(wls, readings)
+    # time.sleep(25)
+    # wl_control.set_wl(632.8)
+    #
+    # wl_control.set_wl(700.0)
+    # wl_control.set_wl(450.0)
 
-    print("Moving Servo")
-    for i in range(0, 10):
-        set_servo_position(pi, SERVO_PIN, random.random())
-        time.sleep(0.35)
+    # widen = 0
+    # sweep = measure_sweep(
+    #     wl_control, lambda: measure_pulses(pi, 4, 0.5), 420 - widen, 650 + widen, 100
+    # )
 
-    for i in range(0, 5):
-        print(measure_pulses(pi, 4, 0.1))
-        time.sleep(0.05)
+    # # perform the sweep, saving plots at steps
+    # wls = []
+    # step_values = []
+    # readings = []
+    # for wl, step_pos, reading in sweep:
+    #     wls.append(wl)
+    #     step_values.append(step_pos)
+    #     readings.append(reading)
+    #     if len(wls) % 50 == 20:
+    #         print(f"saving plot, done {len(wls)} reaidngs")
+    #         plot_line(wls, readings)
 
-    # take_measurements(400, 700, 10, lambda a: None, lambda: 69)
+
+    # wl_control.set_wl(632.8)
+    # plot_line(wls, readings)
+
+    # print("Moving Servo")
+    # for i in range(0, 10):
+    #     set_servo_position(pi, SERVO_PIN, random.random())
+    #     time.sleep(0.35)
+
+    # for i in range(0, 5):
+    #     print(measure_pulses(pi, 4, 0.1))
+    #     time.sleep(0.05)
+
+    # # take_measurements(400, 700, 10, lambda a: None, lambda: 69)
 
 
 if __name__ == "__main__":
