@@ -9,11 +9,29 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Callable, List, Optional, Tuple, Generator
-
 import matplotlib.pyplot as plt
 import pigpio
+import signal
 
-PERSISTENT_STORAGE_PATH: str = "/home/ilia"
+class DisableCtrlC:
+    _count = 0
+    _previous_handler = None
+    def __enter__(self):
+        cls = type(self)
+        if cls._count == 0:
+            cls._previous_handler = signal.getsignal(signal.SIGINT)
+            signal.signal(signal.SIGINT, signal.SIG_IGN)
+        cls._count += 1
+        return self
+    def __exit__(self, exc_type, exc, tb):
+        cls = type(self)
+        cls._count -= 1
+        if cls._count == 0:
+            signal.signal(signal.SIGINT, cls._previous_handler)
+            cls._previous_handler = None
+        return False
+
+
 
 
 def plot_line(x, y, filename="plot_new.png"):
@@ -122,6 +140,22 @@ def step_stepper(
     )
 
 
+
+# Step position saving...
+PERSISTENT_STORAGE_PATH: str = "/home/ilia"
+class StateSave:
+    @staticmethod
+    def save_value(key: str, value: int):
+        Path(PERSISTENT_STORAGE_PATH + "/" + ".spectral_variable_" + key).write_text(str(value), encoding="utf-8")
+
+    @staticmethod
+    def load_value(key: str, default: int = 0) -> int:
+        try:
+            return int(Path(PERSISTENT_STORAGE_PATH + "/" + ".spectral_variable_" + key).read_text(encoding="utf-8"))
+        except FileNotFoundError:
+            return default
+
+
 @dataclass
 class WlParams:
     base_step: int = field(default=0)
@@ -157,19 +191,20 @@ class WlControl:
         self.wlparams = WlParams()
 
     def set_wl(self, wl: float, do_backlash: bool = True) -> None:
-        final_pos = self.wlparams.get_step_for_wl(wl)
-        move_steps = final_pos - self.current_step
-        backlash_sign = self.backlash_steps < 0
-        move_sign = move_steps < 0
-        if move_sign == backlash_sign:
-            do_backlash = False
-        if do_backlash or self.is_first:
-            intermediate_pos = final_pos - self.backlash_steps
-            self._go_to_step(self._clip_to_range(intermediate_pos))
-            self._go_to_step(self._clip_to_range(final_pos))
-        else:
-            self._go_to_step(self._clip_to_range(final_pos))
-        self.is_first = False
+        with DisableCtrlC():
+            final_pos = self.wlparams.get_step_for_wl(wl)
+            move_steps = final_pos - self.current_step
+            backlash_sign = self.backlash_steps < 0
+            move_sign = move_steps < 0
+            if move_sign == backlash_sign:
+                do_backlash = False
+            if do_backlash or self.is_first:
+                intermediate_pos = final_pos - self.backlash_steps
+                self._go_to_step(self._clip_to_range(intermediate_pos))
+                self._go_to_step(self._clip_to_range(final_pos))
+            else:
+                self._go_to_step(self._clip_to_range(final_pos))
+            self.is_first = False
 
     def _clip_to_range(self, step: int) -> int:
         return max(min(self.step_range[1], step), self.step_range[0])
@@ -257,7 +292,7 @@ def set_light_cover(pi, closed: bool):
 
 def activate_camera(pi):
     set_pin(pi, 14, 0)
-    time.sleep(0.1)
+    time.sleep(0.15)
     set_pin(pi, 14, 1)
 
 def main():
@@ -302,8 +337,10 @@ def main():
     # wl_control.set_wl(632.8)
 
     start_wl = 390
-    wl_step = 3.0
+    wl_step = 2.0
     max_wl = 710
+
+    diode_exposure_time = 3.75
 
     current_wl = start_wl
 
@@ -314,20 +351,23 @@ def main():
 
         # activate camera and measure pulses (light)
         activate_camera(pi)
-        diode_value_light = measure_pulses(pi, 4, 1.75)
+        diode_value_light = measure_pulses(pi, 4, diode_exposure_time)
         print(f"{current_wl}, {strftime('%Y-%m-%d %H:%M:%S', gmtime())}, LIGHT, {diode_value_light}")
 
         # Cover the light, take a dark frame
         set_light_cover(pi, True)
 
+        # Camera writing break
+        time.sleep(0.6)
+
         # activate camera and measure pulses (dark)
         activate_camera(pi)
-        diode_value_dark = measure_pulses(pi, 4, 1.75)
+        diode_value_dark = measure_pulses(pi, 4, diode_exposure_time)
 
         print(f"{current_wl}, {strftime('%Y-%m-%d %H:%M:%S', gmtime())}, DARK, {diode_value_dark}")
 
         # Cool down break
-        time.sleep(3)
+        time.sleep(0.6)
 
         current_wl += wl_step
 
