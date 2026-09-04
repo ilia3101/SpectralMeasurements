@@ -8,10 +8,10 @@ from enum import IntEnum
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Callable, List, Optional, Tuple, Generator
-import matplotlib.pyplot as plt
+from typing import Any, Callable, List, Optional, Generator
 import pigpio
 import signal
+from fractions import Fraction
 
 class DisableCtrlC:
     _count = 0
@@ -33,8 +33,8 @@ class DisableCtrlC:
 
 
 
-
 def plot_line(x, y, filename="plot_new.png"):
+    import matplotlib.pyplot as plt
     print("Saving plot...")
     plt.plot(x, y)
     plt.savefig(filename)
@@ -45,14 +45,13 @@ def plot_line(x, y, filename="plot_new.png"):
 #     with open(PERSISTENT_STORAGE_PATH + "/" + name, "wb") as f:
 #         pickle.dump(obj, f)
 
-
-def get_var(name: str) -> Optional[Any]:
-    path = Path(PERSISTENT_STORAGE_PATH + "/" + name)
-    if path.exists:
-        with open(path, "rb") as f:
-            return pickle.load(f)
-    else:
-        return None
+# def get_var(name: str, ) -> Optional[Any]:
+#     path = Path(PERSISTENT_STORAGE_PATH + "/" + name)
+#     if path.exists:
+#         with open(path, "rb") as f:
+#             return pickle.load(f)
+#     else:
+#         return None
 
 
 def send_pulses(
@@ -124,7 +123,7 @@ def measure_pulses(pi, pin: int, duration: float) -> int:
 
 def step_stepper(
     pi,
-    step_dir: Tuple[int, int],
+    step_dir: tuple[int, int],
     steps: int,
     steps_per_second: int = 40,
     substeps: int = 1,
@@ -142,17 +141,25 @@ def step_stepper(
 
 
 # Step position saving...
-PERSISTENT_STORAGE_PATH: str = "/home/ilia"
 class StateSave:
     @staticmethod
-    def save_value(key: str, value: int):
-        Path(PERSISTENT_STORAGE_PATH + "/" + ".spectral_variable_" + key).write_text(str(value), encoding="utf-8")
+    def set_var(key: str, value: int):
+        Path(str(Path.home()) + "/" + ".spectral_variable_" + key).write_text(str(value), encoding="utf-8")
 
     @staticmethod
-    def load_value(key: str, default: int = 0) -> int:
+    def get_var(key: str) -> int | None:
         try:
-            return int(Path(PERSISTENT_STORAGE_PATH + "/" + ".spectral_variable_" + key).read_text(encoding="utf-8"))
+            return int(Path(str(Path.home()) + "/" + ".spectral_variable_" + key).read_text(encoding="utf-8"))
         except FileNotFoundError:
+            return None
+
+    @staticmethod
+    def get_var_or_set_default(key: str, default: int) -> int:
+        value = StateSave.get_var(key)
+        if value is not None:
+            return value
+        else:
+            StateSave.set_var(key, default)
             return default
 
 
@@ -160,7 +167,14 @@ class StateSave:
 class WlParams:
     base_step: int = field(default=0)
     base_step_wl: float = field(default=632.8)
-    wl_per_steps: Tuple[float, int] = field(default=(25.0, -3200))
+    wl_per_steps: tuple[float, int] = field(default=(25.0, -3200))
+
+    def __init__(self):
+        self.base_step_wl = StateSave.get_var_or_set_default("wl_at_zero_step", 632800) / 1000.0
+        self.wl_per_steps = (
+            StateSave.get_var_or_set_default("revolution_wl", 25000) / 1000.0,
+            StateSave.get_var_or_set_default("revolution_steps", -3200)
+        )
 
     def get_wl_for_step(self, step: int) -> float:
         return (
@@ -169,30 +183,31 @@ class WlParams:
         )
 
     def get_step_for_wl(self, wl: float) -> int:
-        return int(
+        return int(round(
             (wl - self.base_step_wl)
             / self.wl_per_steps[0]
             * float(self.wl_per_steps[1])
-            + 0.5
-        )
+        ))
 
 
 # TODO: do backlash decision logic by accumulating movement in current direction and seeing if already 'done' maybe? maybe this is too complex
 class WlControl:
-    def __init__(self, pi, step_dir: Tuple[int, int]):
+    def __init__(self, pi, step_dir: tuple[int, int] = (27, 22)):
         # self.is_first = True
-        self.pi = pi
-        self.step_dir = step_dir
-        self.is_first = True
-        self.current_step = 0
-        self.backlash_steps = -400  # can be positive or negative
-        self.steps_per_second = 1500
-        self.step_range = (-1_000_000_000, 1_000_000_000)
-        self.wlparams = WlParams()
+        self.pi: Any = pi
+        self.step_dir: tuple[int, int] = step_dir
+        self.is_first: bool = True
+        self.current_step: int = StateSave.get_var_or_set_default("current_step", 0)
+        self.backlash_steps: int = StateSave.get_var_or_set_default("backlash_steps", -4000)  # can be positive or negative
+        # print(f"backlash steps = {self.backlash_steps}")
+        self.steps_per_second: int = 1500
+        self.step_range: tuple[int, int] = (-1_000_000_000, 1_000_000_000)
+        self.wlparams: WlParams = WlParams()
 
     def set_wl(self, wl: float, do_backlash: bool = True) -> None:
         with DisableCtrlC():
             final_pos = self.wlparams.get_step_for_wl(wl)
+            # print(f"New step = {final_pos} (curr = {self.current_step}), diff = {final_pos - self.current_step}")
             move_steps = final_pos - self.current_step
             backlash_sign = self.backlash_steps < 0
             move_sign = move_steps < 0
@@ -210,44 +225,49 @@ class WlControl:
         return max(min(self.step_range[1], step), self.step_range[0])
 
     def _go_to_step(self, step: int) -> None:
-        steps = step - self.current_step
-        # print(f"Moving {steps} steps")
-        step_stepper(
-            self.pi,
-            self.step_dir,
-            steps,
-            self.steps_per_second,
-        )
-        self.current_step = step
+        with DisableCtrlC():
+            steps = step - self.current_step
+            speed = self.steps_per_second
+            if abs(steps) < 1000:
+                speed = 200
+            # print(f"Moving {steps} steps")
+            step_stepper(
+                self.pi,
+                self.step_dir,
+                steps,
+                self.steps_per_second,
+            )
+            self.current_step = step
+            StateSave.set_var("current_step", self.current_step)
 
 
-def measure_sweep(
-    wlc: WlControl,
-    read_cb: Callable[[], Any],
-    from_wl: float,
-    to_wl: float,
-    steps: int,
-) -> Generator[Tuple[float, int, Any], None, None]:
-    """
-    Returns: Tuple(Wavelengths, Step positions, Readings from read_cb)
-    """
-    # wls = []
-    # step_values = []
-    # readings = []
-    for i in range(0, steps):
-        wl = from_wl + (to_wl - from_wl) * (i / (steps - 1))
-        wlc.set_wl(wl)
-        # wls.append(wl)
-        # step_values.append(wlc.current_step)
-        reading = read_cb()
-        # readings.append(reading)
+# def measure_sweep(
+#     wlc: WlControl,
+#     read_cb: Callable[[], Any],
+#     from_wl: float,
+#     to_wl: float,
+#     steps: int,
+# ) -> Generator[tuple[float, int, Any], None, None]:
+#     """
+#     Returns: Tuple(Wavelengths, Step positions, Readings from read_cb)
+#     """
+#     # wls = []
+#     # step_values = []
+#     # readings = []
+#     for i in range(0, steps):
+#         wl = from_wl + (to_wl - from_wl) * (i / (steps - 1))
+#         wlc.set_wl(wl)
+#         # wls.append(wl)
+#         # step_values.append(wlc.current_step)
+#         reading = read_cb()
+#         # readings.append(reading)
 
-        yield (wl, wlc.current_step, reading)
+#         yield (wl, wlc.current_step, reading)
 
-        print(wl)
-        print(reading)
+#         print(wl)
+#         print(reading)
 
-    # return (wls, step_values, readings)
+#     # return (wls, step_values, readings)
 
 # class syntax
 class FilterOption(IntEnum):
@@ -295,7 +315,9 @@ def activate_camera(pi):
     time.sleep(0.15)
     set_pin(pi, 14, 1)
 
-def main():
+
+
+def measure_camera():
     pi = pigpio.pi()
 
     # Light cover test
@@ -323,30 +345,40 @@ def main():
         diode_value = measure_pulses(pi, 4, 1.75)
         print(f"Diode = {diode_value}")
 
-    # (step pin, direction pin)
-    STEPPER_PINS = (27, 22)
-
     # Servo pulse pin
     SERVO_PIN = 24
 
-    wl_control = WlControl(pi, STEPPER_PINS)
-    # wl_control.set_wl(420)
-    # time.sleep(1)
-    # wl_control.set_wl(690)
-    # time.sleep(1)
-    # wl_control.set_wl(632.8)
+    wl_control = WlControl(pi)
 
-    start_wl = 390
+    start_wl = 380
     wl_step = 2.0
-    max_wl = 710
+    max_wl = 720
 
     diode_exposure_time = 3.75
 
     current_wl = start_wl
 
-    while current_wl < max_wl:
+    # Track filter state. TODO: do this nicer in future
+    passed_violet_threshold = False
+    violet_threshold = 420
+    passed_red_threshold = False
+    red_threshold = 650
+
+    set_filter_wheel(pi, FilterOption.VIOLET_375_425)
+
+    while current_wl <= max_wl:
         print(f"current wl = {current_wl}")
         wl_control.set_wl(current_wl)
+
+        # Change the filter wheel when needed
+        if current_wl > violet_threshold and not passed_violet_threshold:
+            set_filter_wheel(pi, FilterOption.NO_FILTER)
+            passed_violet_threshold = True
+        if current_wl >= red_threshold and not passed_red_threshold:
+            set_filter_wheel(pi, FilterOption.DEEP_RED)
+            passed_red_threshold = True
+
+        # Uncover the light
         set_light_cover(pi, False)
 
         # activate camera and measure pulses (light)
@@ -373,44 +405,90 @@ def main():
 
     wl_control.set_wl(632.8)
 
-    # time.sleep(25)
-    # wl_control.set_wl(632.8)
-    #
-    # wl_control.set_wl(700.0)
-    # wl_control.set_wl(450.0)
 
-    # widen = 0
-    # sweep = measure_sweep(
-    #     wl_control, lambda: measure_pulses(pi, 4, 0.5), 420 - widen, 650 + widen, 100
-    # )
+def set_wl():
+    import sys
+    wavelength = float(sys.argv[1])
+    print(f"Setting wavelength to {wavelength}nm")
 
-    # # perform the sweep, saving plots at steps
-    # wls = []
-    # step_values = []
-    # readings = []
-    # for wl, step_pos, reading in sweep:
-    #     wls.append(wl)
-    #     step_values.append(step_pos)
-    #     readings.append(reading)
-    #     if len(wls) % 50 == 20:
-    #         print(f"saving plot, done {len(wls)} reaidngs")
-    #         plot_line(wls, readings)
+    pi = pigpio.pi()
+    wl_control = WlControl(pi)
+
+    wl_control.set_wl(wavelength)
+
+def uncover_light():
+    print("Uncovering light")
+    pi = pigpio.pi()
+    set_light_cover(pi, False)
+
+def cover_light():
+    print("Covering light")
+    pi = pigpio.pi()
+    set_light_cover(pi, True)
+
+def measure_sweep():
+    import tqdm
+    import sys
+
+    if len(sys.argv) != 5:
+        print("usage: measure_sweep <wl_start> <wl_end> <samples> <sampling_time>\nFor example: uv run measure_sweep 630 634 500 0.1")
+    wl_start = float(sys.argv[1])
+    wl_end = float(sys.argv[2])
+    samples = int(sys.argv[3])
+    sampling_time = float(sys.argv[4])
+
+    pi = pigpio.pi()
+    wl_control = WlControl(pi)
+
+    x = [0.0 for i in range(0,samples)]
+    y = [0.0 for i in range(0,samples)]
+
+    for m in range(0,30):
+        print("Measuring sweep...")
+        for i in tqdm.tqdm(range(0,samples)):
+        # for i in range(0,samples):
+            wl = wl_start + (wl_end - wl_start) * (i/(samples-1))
+            wl_control.set_wl(wl)
+            x[i] = wl
+            pulses = measure_pulses(pi, 4, sampling_time)
+            y[i] += pulses
+        plot_line(x, y)
+
+    max_value = y[0]
+    max_value_wl = x[0]
+    for i in range(0,len(y)):
+        if y[i] > max_value:
+            max_value = y[i]
+            max_value_wl = x[i]
+
+    print(f"Max value at {max_value_wl:.2f}nm")
+
+    print("Making plot with matplotlib")
+    # import matplotlib.pyplot as plt
+    # plt.plot(x, y)
+    # plt.savefig("poop.png")
+    # plt.close()
 
 
-    # wl_control.set_wl(632.8)
-    # plot_line(wls, readings)
+def set_filter():
+    import sys
+    option = sys.argv[1]
 
-    # print("Moving Servo")
-    # for i in range(0, 10):
-    #     set_servo_position(pi, SERVO_PIN, random.random())
-    #     time.sleep(0.35)
+    filters = {
+        "none": FilterOption.NO_FILTER,
+        "red": FilterOption.DEEP_RED,
+        "violet": FilterOption.VIOLET_375_425
+    }
 
-    # for i in range(0, 5):
-    #     print(measure_pulses(pi, 4, 0.1))
-    #     time.sleep(0.05)
+    if option not in filters:
+        print("Filter options are \"none\", \"red\", and \"violet\"")
+    else:
+        print(f"Setting filter to {option}")
+        pi = pigpio.pi()
+        set_filter_wheel(pi, filters[option])
 
-    # # take_measurements(400, 700, 10, lambda a: None, lambda: 69)
-
-
-if __name__ == "__main__":
-    main()
+def set_variable():
+    import sys
+    key = sys.argv[1]
+    value = int(sys.argv[2])
+    StateSave.set_var(key, value)
